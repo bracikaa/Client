@@ -1,26 +1,26 @@
 using System;
-using System.Collections.Generic;
+using OpenPop.Pop3;
+using OpenPop.Pop3.Exceptions;
+using OpenPop.Common.Logging;
 using System.Data;
+using System.Collections.Generic;
+using OpenPop.Mime.Header;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using OpenPop.Mime;
-using OpenPop.Mime.Header;
-using OpenPop.Pop3;
-using OpenPop.Pop3.Exceptions;
-using OpenPop.Common.Logging;
 using Message = OpenPop.Mime.Message;
+using System.Data.SqlClient;
+using System.Drawing;
+using OpenPop.TestApplication;
 
 namespace cs499
 {
-	public class TestForm : Form
-	{
+    public class TestForm : Form
+    {
 
-		private Label labelAttachments;
-		private Label labelMessageBody;
-		private Label labelMessageNumber;
-		private Label labelPassword;
-		private Label labelUsername;
+
+        private Label lblUsername;
         private readonly Dictionary<int, Message> messages = new Dictionary<int, Message>();
         private readonly Pop3Client pop3Client;
         private Button connectButton;
@@ -28,63 +28,82 @@ namespace cs499
         private ContextMenu contextMenuMessages;
         private DataGrid gridHeaders;
         private Panel panelMiddle;
-        private Panel panelMessageBody;
-        private Panel panelMessagesView;
-        private TextBox messageTextBox;
+        private Label labelPassword;
         private TextBox popServerTextBox;
         private TextBox passwordTextBox;
         private TextBox portTextBox;
         private MenuItem Tasking;
         private TextBox totalMessagesTextBox;
+        private Panel panelMessageBody;
+        private Panel panelMessagesView;
+        private TextBox messageTextBox;
+        private Label lblAttachments;
+        private Label lblMessageBody;
+        private Label lblMessageNumber;
         private Label labelTotalMessages;
         private SaveFileDialog saveFile;
         private TextBox loginTextBox;
         private Label labelServerAddress;
         private Label labelServerPort;
         private TreeView listAttachments;
-		private TreeView listMessages;
-		private MenuItem menuViewSource;
-		private Panel panelTop;
-		private Panel panelProperties;
+        private TreeView listMessages;
+        private MenuItem menuViewSource;
+        private Panel panelTop;
+        private Panel panelProperties;
         private ProgressBar progressBar;
+        private TextBox databaseNameTxt;
+        private TextBox serverNameTxt;
+        private Label label3;
+        private Label label2;
+        private Label label1;
+        private ComboBox loginTypeCb;
+        private TextBox usernameTxt;
+        private Label label4;
+        private Label label5;
+        private TextBox passwordTxt;
+        private Button userAccountsBtn;
+        private MenuItem menuItem1;
+        private MenuItem menuItem2;
         private CheckBox useSslCheckBox;
 
-		private TestForm()
-		{
+        private TestForm()
+        {
 
-			InitializeComponent();
+            InitializeComponent();
 
-			pop3Client = new Pop3Client();
+            pop3Client = new Pop3Client();
 
-			string myDocs = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			string file = Path.Combine(myDocs, "OpenPopLogin.txt");
-			if (File.Exists(file))
-			{
-				using (StreamReader reader = new StreamReader(File.OpenRead(file)))
-				{
-					popServerTextBox.Text = reader.ReadLine(); // Hostname
-					portTextBox.Text = reader.ReadLine(); // Port
-					useSslCheckBox.Checked = bool.Parse(reader.ReadLine() ?? "true"); // Whether to use SSL or not
-					loginTextBox.Text = reader.ReadLine(); // Username
-					passwordTextBox.Text = reader.ReadLine(); // Password
-				}
-			}
+            string myDocs = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            string file = Path.Combine(myDocs, "OpenPopLogin.txt");
+            if (File.Exists(file))
+            {
+                using (StreamReader reader = new StreamReader(File.OpenRead(file)))
+                {
+                    popServerTextBox.Text = reader.ReadLine(); // Hostname
+                    portTextBox.Text = reader.ReadLine(); // Port
+                    useSslCheckBox.Checked = bool.Parse(reader.ReadLine() ?? "true"); // Whether to use SSL or not
+                    loginTextBox.Text = reader.ReadLine(); // Username
+                    passwordTextBox.Text = reader.ReadLine(); // Password
+                }
+            }
             attachmentPanel.Visible = true;
-		}
+        }
 
-		#region Windows Form Designer generated code
-		/// <summary>
-		///   Required method for Designer support - do not modify
-		///   the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        #region Windows Form Designer generated code
+        /// <summary>
+        ///   Required method for Designer support - do not modify
+        ///   the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TestForm));
             this.panelTop = new System.Windows.Forms.Panel();
+            this.totalMessagesTextBox = new System.Windows.Forms.TextBox();
+            this.labelTotalMessages = new System.Windows.Forms.Label();
             this.useSslCheckBox = new System.Windows.Forms.CheckBox();
             this.labelPassword = new System.Windows.Forms.Label();
             this.passwordTextBox = new System.Windows.Forms.TextBox();
-            this.labelUsername = new System.Windows.Forms.Label();
+            this.lblUsername = new System.Windows.Forms.Label();
             this.loginTextBox = new System.Windows.Forms.TextBox();
             this.connectButton = new System.Windows.Forms.Button();
             this.labelServerPort = new System.Windows.Forms.Label();
@@ -92,24 +111,35 @@ namespace cs499
             this.labelServerAddress = new System.Windows.Forms.Label();
             this.popServerTextBox = new System.Windows.Forms.TextBox();
             this.panelProperties = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.userAccountsBtn = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.gridHeaders = new System.Windows.Forms.DataGrid();
+            this.passwordTxt = new System.Windows.Forms.TextBox();
+            this.loginTypeCb = new System.Windows.Forms.ComboBox();
+            this.serverNameTxt = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.usernameTxt = new System.Windows.Forms.TextBox();
+            this.databaseNameTxt = new System.Windows.Forms.TextBox();
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.panelMessageBody = new System.Windows.Forms.Panel();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.messageTextBox = new System.Windows.Forms.TextBox();
-            this.labelMessageBody = new System.Windows.Forms.Label();
+            this.lblMessageBody = new System.Windows.Forms.Label();
             this.panelMessagesView = new System.Windows.Forms.Panel();
             this.listMessages = new System.Windows.Forms.TreeView();
             this.contextMenuMessages = new System.Windows.Forms.ContextMenu();
             this.menuViewSource = new System.Windows.Forms.MenuItem();
             this.Tasking = new System.Windows.Forms.MenuItem();
-            this.labelMessageNumber = new System.Windows.Forms.Label();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.menuItem2 = new System.Windows.Forms.MenuItem();
+            this.lblMessageNumber = new System.Windows.Forms.Label();
             this.attachmentPanel = new System.Windows.Forms.Panel();
             this.listAttachments = new System.Windows.Forms.TreeView();
-            this.labelAttachments = new System.Windows.Forms.Label();
+            this.lblAttachments = new System.Windows.Forms.Label();
             this.saveFile = new System.Windows.Forms.SaveFileDialog();
-            this.totalMessagesTextBox = new System.Windows.Forms.TextBox();
-            this.labelTotalMessages = new System.Windows.Forms.Label();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.panelTop.SuspendLayout();
             this.panelProperties.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridHeaders)).BeginInit();
@@ -122,12 +152,13 @@ namespace cs499
             // panelTop
             // 
             this.panelTop.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panelTop.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panelTop.Controls.Add(this.totalMessagesTextBox);
             this.panelTop.Controls.Add(this.labelTotalMessages);
             this.panelTop.Controls.Add(this.useSslCheckBox);
             this.panelTop.Controls.Add(this.labelPassword);
             this.panelTop.Controls.Add(this.passwordTextBox);
-            this.panelTop.Controls.Add(this.labelUsername);
+            this.panelTop.Controls.Add(this.lblUsername);
             this.panelTop.Controls.Add(this.loginTextBox);
             this.panelTop.Controls.Add(this.connectButton);
             this.panelTop.Controls.Add(this.labelServerPort);
@@ -137,15 +168,30 @@ namespace cs499
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(865, 64);
+            this.panelTop.Size = new System.Drawing.Size(903, 64);
             this.panelTop.TabIndex = 0;
+            // 
+            // totalMessagesTextBox
+            // 
+            this.totalMessagesTextBox.Location = new System.Drawing.Point(13, 30);
+            this.totalMessagesTextBox.Name = "totalMessagesTextBox";
+            this.totalMessagesTextBox.Size = new System.Drawing.Size(44, 20);
+            this.totalMessagesTextBox.TabIndex = 10;
+            // 
+            // labelTotalMessages
+            // 
+            this.labelTotalMessages.Location = new System.Drawing.Point(10, 7);
+            this.labelTotalMessages.Name = "labelTotalMessages";
+            this.labelTotalMessages.Size = new System.Drawing.Size(100, 23);
+            this.labelTotalMessages.TabIndex = 11;
+            this.labelTotalMessages.Text = "Total Messages";
             // 
             // useSslCheckBox
             // 
             this.useSslCheckBox.AutoSize = true;
             this.useSslCheckBox.Checked = true;
             this.useSslCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.useSslCheckBox.Location = new System.Drawing.Point(316, 30);
+            this.useSslCheckBox.Location = new System.Drawing.Point(161, 28);
             this.useSslCheckBox.Name = "useSslCheckBox";
             this.useSslCheckBox.Size = new System.Drawing.Size(68, 17);
             this.useSslCheckBox.TabIndex = 4;
@@ -154,7 +200,7 @@ namespace cs499
             // 
             // labelPassword
             // 
-            this.labelPassword.Location = new System.Drawing.Point(562, 32);
+            this.labelPassword.Location = new System.Drawing.Point(407, 32);
             this.labelPassword.Name = "labelPassword";
             this.labelPassword.Size = new System.Drawing.Size(64, 23);
             this.labelPassword.TabIndex = 8;
@@ -162,41 +208,41 @@ namespace cs499
             // 
             // passwordTextBox
             // 
-            this.passwordTextBox.Location = new System.Drawing.Point(632, 32);
+            this.passwordTextBox.Location = new System.Drawing.Point(477, 30);
             this.passwordTextBox.Name = "passwordTextBox";
             this.passwordTextBox.PasswordChar = '*';
             this.passwordTextBox.Size = new System.Drawing.Size(128, 20);
             this.passwordTextBox.TabIndex = 2;
             // 
-            // labelUsername
+            // lblUsername
             // 
-            this.labelUsername.Location = new System.Drawing.Point(562, 4);
-            this.labelUsername.Name = "labelUsername";
-            this.labelUsername.Size = new System.Drawing.Size(64, 23);
-            this.labelUsername.TabIndex = 6;
-            this.labelUsername.Text = "Email";
+            this.lblUsername.Location = new System.Drawing.Point(407, 6);
+            this.lblUsername.Name = "lblUsername";
+            this.lblUsername.Size = new System.Drawing.Size(64, 23);
+            this.lblUsername.TabIndex = 6;
+            this.lblUsername.Text = "Email";
             // 
             // loginTextBox
             // 
-            this.loginTextBox.Location = new System.Drawing.Point(632, 5);
+            this.loginTextBox.Location = new System.Drawing.Point(477, 3);
             this.loginTextBox.Name = "loginTextBox";
             this.loginTextBox.Size = new System.Drawing.Size(128, 20);
             this.loginTextBox.TabIndex = 1;
             this.loginTextBox.Text = "nedimp_97@hotmail.com";
             this.loginTextBox.TextChanged += new System.EventHandler(this.loginTextBox_TextChanged);
             // 
-            // connectAndRetrieveButton
+            // connectButton
             // 
-            this.connectButton.Location = new System.Drawing.Point(771, 5);
-            this.connectButton.Name = "connectAndRetrieveButton";
-            this.connectButton.Size = new System.Drawing.Size(86, 54);
+            this.connectButton.Location = new System.Drawing.Point(631, 1);
+            this.connectButton.Name = "connectButton";
+            this.connectButton.Size = new System.Drawing.Size(111, 54);
             this.connectButton.TabIndex = 5;
             this.connectButton.Text = "Connect";
             this.connectButton.Click += new System.EventHandler(this.ConnectAndRetrieveButtonClick);
             // 
             // labelServerPort
             // 
-            this.labelServerPort.Location = new System.Drawing.Point(394, 34);
+            this.labelServerPort.Location = new System.Drawing.Point(239, 32);
             this.labelServerPort.Name = "labelServerPort";
             this.labelServerPort.Size = new System.Drawing.Size(31, 23);
             this.labelServerPort.TabIndex = 3;
@@ -204,7 +250,7 @@ namespace cs499
             // 
             // portTextBox
             // 
-            this.portTextBox.Location = new System.Drawing.Point(428, 35);
+            this.portTextBox.Location = new System.Drawing.Point(273, 29);
             this.portTextBox.Name = "portTextBox";
             this.portTextBox.Size = new System.Drawing.Size(128, 20);
             this.portTextBox.TabIndex = 3;
@@ -212,7 +258,7 @@ namespace cs499
             // 
             // labelServerAddress
             // 
-            this.labelServerAddress.Location = new System.Drawing.Point(313, 4);
+            this.labelServerAddress.Location = new System.Drawing.Point(158, 2);
             this.labelServerAddress.Name = "labelServerAddress";
             this.labelServerAddress.Size = new System.Drawing.Size(112, 23);
             this.labelServerAddress.TabIndex = 1;
@@ -220,7 +266,7 @@ namespace cs499
             // 
             // popServerTextBox
             // 
-            this.popServerTextBox.Location = new System.Drawing.Point(428, 5);
+            this.popServerTextBox.Location = new System.Drawing.Point(273, 3);
             this.popServerTextBox.Name = "popServerTextBox";
             this.popServerTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
             this.popServerTextBox.Size = new System.Drawing.Size(128, 20);
@@ -229,26 +275,140 @@ namespace cs499
             // 
             // panelProperties
             // 
+            this.panelProperties.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panelProperties.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panelProperties.Controls.Add(this.label3);
+            this.panelProperties.Controls.Add(this.label1);
+            this.panelProperties.Controls.Add(this.label5);
+            this.panelProperties.Controls.Add(this.userAccountsBtn);
+            this.panelProperties.Controls.Add(this.label2);
             this.panelProperties.Controls.Add(this.gridHeaders);
+            this.panelProperties.Controls.Add(this.passwordTxt);
+            this.panelProperties.Controls.Add(this.loginTypeCb);
+            this.panelProperties.Controls.Add(this.serverNameTxt);
+            this.panelProperties.Controls.Add(this.label4);
+            this.panelProperties.Controls.Add(this.usernameTxt);
+            this.panelProperties.Controls.Add(this.databaseNameTxt);
             this.panelProperties.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelProperties.Location = new System.Drawing.Point(0, 260);
+            this.panelProperties.Location = new System.Drawing.Point(0, 421);
             this.panelProperties.Name = "panelProperties";
-            this.panelProperties.Size = new System.Drawing.Size(865, 184);
+            this.panelProperties.Size = new System.Drawing.Size(903, 299);
             this.panelProperties.TabIndex = 1;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(10, 11);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(162, 13);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "SQL Login or Win Authentication";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(17, 60);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(69, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Server Name";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(343, 60);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "Password";
+            this.label5.Visible = false;
+            // 
+            // userAccountsBtn
+            // 
+            this.userAccountsBtn.Location = new System.Drawing.Point(763, 69);
+            this.userAccountsBtn.Name = "userAccountsBtn";
+            this.userAccountsBtn.Size = new System.Drawing.Size(128, 37);
+            this.userAccountsBtn.TabIndex = 12;
+            this.userAccountsBtn.Text = "Manage User Accounts";
+            this.userAccountsBtn.UseVisualStyleBackColor = true;
+            this.userAccountsBtn.Click += new System.EventHandler(this.userAccountsBtn_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(122, 60);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(84, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Database Name";
             // 
             // gridHeaders
             // 
             this.gridHeaders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.gridHeaders.BackgroundColor = System.Drawing.Color.LightSlateGray;
             this.gridHeaders.DataMember = "";
             this.gridHeaders.HeaderForeColor = System.Drawing.SystemColors.ControlText;
-            this.gridHeaders.Location = new System.Drawing.Point(0, 0);
+            this.gridHeaders.Location = new System.Drawing.Point(0, 117);
             this.gridHeaders.Name = "gridHeaders";
             this.gridHeaders.PreferredColumnWidth = 400;
             this.gridHeaders.ReadOnly = true;
-            this.gridHeaders.Size = new System.Drawing.Size(865, 188);
+            this.gridHeaders.Size = new System.Drawing.Size(899, 182);
             this.gridHeaders.TabIndex = 3;
+            // 
+            // passwordTxt
+            // 
+            this.passwordTxt.Location = new System.Drawing.Point(346, 78);
+            this.passwordTxt.Name = "passwordTxt";
+            this.passwordTxt.Size = new System.Drawing.Size(100, 20);
+            this.passwordTxt.TabIndex = 15;
+            this.passwordTxt.Visible = false;
+            // 
+            // loginTypeCb
+            // 
+            this.loginTypeCb.FormattingEnabled = true;
+            this.loginTypeCb.Items.AddRange(new object[] {
+            "Windows Authentication",
+            "Sql Login"});
+            this.loginTypeCb.Location = new System.Drawing.Point(13, 27);
+            this.loginTypeCb.Name = "loginTypeCb";
+            this.loginTypeCb.Size = new System.Drawing.Size(166, 21);
+            this.loginTypeCb.TabIndex = 12;
+            this.loginTypeCb.Text = "Windows Authentication";
+            this.loginTypeCb.SelectedIndexChanged += new System.EventHandler(this.loginTypeCb_SelectedIndexChanged);
+            // 
+            // serverNameTxt
+            // 
+            this.serverNameTxt.Location = new System.Drawing.Point(10, 78);
+            this.serverNameTxt.Name = "serverNameTxt";
+            this.serverNameTxt.Size = new System.Drawing.Size(100, 20);
+            this.serverNameTxt.TabIndex = 9;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(228, 61);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(55, 13);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Username";
+            this.label4.Visible = false;
+            // 
+            // usernameTxt
+            // 
+            this.usernameTxt.Location = new System.Drawing.Point(231, 78);
+            this.usernameTxt.Name = "usernameTxt";
+            this.usernameTxt.Size = new System.Drawing.Size(100, 20);
+            this.usernameTxt.TabIndex = 14;
+            this.usernameTxt.Visible = false;
+            // 
+            // databaseNameTxt
+            // 
+            this.databaseNameTxt.Location = new System.Drawing.Point(124, 78);
+            this.databaseNameTxt.Name = "databaseNameTxt";
+            this.databaseNameTxt.Size = new System.Drawing.Size(100, 20);
+            this.databaseNameTxt.TabIndex = 11;
             // 
             // panelMiddle
             // 
@@ -258,19 +418,30 @@ namespace cs499
             this.panelMiddle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelMiddle.Location = new System.Drawing.Point(0, 64);
             this.panelMiddle.Name = "panelMiddle";
-            this.panelMiddle.Size = new System.Drawing.Size(865, 196);
+            this.panelMiddle.Size = new System.Drawing.Size(903, 357);
             this.panelMiddle.TabIndex = 2;
             // 
             // panelMessageBody
             // 
+            this.panelMessageBody.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.panelMessageBody.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panelMessageBody.Controls.Add(this.progressBar);
             this.panelMessageBody.Controls.Add(this.messageTextBox);
-            this.panelMessageBody.Controls.Add(this.labelMessageBody);
+            this.panelMessageBody.Controls.Add(this.lblMessageBody);
             this.panelMessageBody.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelMessageBody.Location = new System.Drawing.Point(281, 0);
             this.panelMessageBody.Name = "panelMessageBody";
-            this.panelMessageBody.Size = new System.Drawing.Size(376, 196);
+            this.panelMessageBody.Size = new System.Drawing.Size(414, 357);
             this.panelMessageBody.TabIndex = 6;
+            // 
+            // progressBar
+            // 
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar.Location = new System.Drawing.Point(7, 329);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(394, 18);
+            this.progressBar.TabIndex = 11;
             // 
             // messageTextBox
             // 
@@ -282,25 +453,28 @@ namespace cs499
             this.messageTextBox.Multiline = true;
             this.messageTextBox.Name = "messageTextBox";
             this.messageTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.messageTextBox.Size = new System.Drawing.Size(360, 143);
+            this.messageTextBox.Size = new System.Drawing.Size(394, 300);
             this.messageTextBox.TabIndex = 9;
             // 
-            // labelMessageBody
+            // lblMessageBody
             // 
-            this.labelMessageBody.Location = new System.Drawing.Point(8, 8);
-            this.labelMessageBody.Name = "labelMessageBody";
-            this.labelMessageBody.Size = new System.Drawing.Size(136, 16);
-            this.labelMessageBody.TabIndex = 5;
-            this.labelMessageBody.Text = "Message Body";
+            this.lblMessageBody.Location = new System.Drawing.Point(8, 8);
+            this.lblMessageBody.Name = "lblMessageBody";
+            this.lblMessageBody.Size = new System.Drawing.Size(136, 16);
+            this.lblMessageBody.TabIndex = 5;
+            this.lblMessageBody.Text = "Message Body";
             // 
             // panelMessagesView
             // 
+            this.panelMessagesView.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.panelMessagesView.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.panelMessagesView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panelMessagesView.Controls.Add(this.listMessages);
-            this.panelMessagesView.Controls.Add(this.labelMessageNumber);
+            this.panelMessagesView.Controls.Add(this.lblMessageNumber);
             this.panelMessagesView.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelMessagesView.Location = new System.Drawing.Point(0, 0);
             this.panelMessagesView.Name = "panelMessagesView";
-            this.panelMessagesView.Size = new System.Drawing.Size(281, 196);
+            this.panelMessagesView.Size = new System.Drawing.Size(281, 357);
             this.panelMessagesView.TabIndex = 5;
             // 
             // listMessages
@@ -311,7 +485,7 @@ namespace cs499
             this.listMessages.ContextMenu = this.contextMenuMessages;
             this.listMessages.Location = new System.Drawing.Point(8, 24);
             this.listMessages.Name = "listMessages";
-            this.listMessages.Size = new System.Drawing.Size(266, 160);
+            this.listMessages.Size = new System.Drawing.Size(262, 317);
             this.listMessages.TabIndex = 8;
             this.listMessages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ListMessagesMessageSelected);
             // 
@@ -319,7 +493,9 @@ namespace cs499
             // 
             this.contextMenuMessages.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.menuViewSource,
-            this.Tasking});
+            this.Tasking,
+            this.menuItem1,
+            this.menuItem2});
             // 
             // menuViewSource
             // 
@@ -333,22 +509,36 @@ namespace cs499
             this.Tasking.Text = "Tasking";
             this.Tasking.Click += new System.EventHandler(this.Tasking_Click);
             // 
-            // labelMessageNumber
+            // menuItem1
             // 
-            this.labelMessageNumber.Location = new System.Drawing.Point(8, 8);
-            this.labelMessageNumber.Name = "labelMessageNumber";
-            this.labelMessageNumber.Size = new System.Drawing.Size(136, 16);
-            this.labelMessageNumber.TabIndex = 1;
-            this.labelMessageNumber.Text = "Messages";
+            this.menuItem1.Index = 2;
+            this.menuItem1.Text = "Delete";
+            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
+            // 
+            // menuItem2
+            // 
+            this.menuItem2.Index = 3;
+            this.menuItem2.Text = "Save in Doc";
+            this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
+            // 
+            // lblMessageNumber
+            // 
+            this.lblMessageNumber.Location = new System.Drawing.Point(8, 8);
+            this.lblMessageNumber.Name = "lblMessageNumber";
+            this.lblMessageNumber.Size = new System.Drawing.Size(136, 16);
+            this.lblMessageNumber.TabIndex = 1;
+            this.lblMessageNumber.Text = "Messages";
             // 
             // attachmentPanel
             // 
+            this.attachmentPanel.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.attachmentPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.attachmentPanel.Controls.Add(this.listAttachments);
-            this.attachmentPanel.Controls.Add(this.labelAttachments);
+            this.attachmentPanel.Controls.Add(this.lblAttachments);
             this.attachmentPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.attachmentPanel.Location = new System.Drawing.Point(657, 0);
+            this.attachmentPanel.Location = new System.Drawing.Point(695, 0);
             this.attachmentPanel.Name = "attachmentPanel";
-            this.attachmentPanel.Size = new System.Drawing.Size(208, 196);
+            this.attachmentPanel.Size = new System.Drawing.Size(208, 357);
             this.attachmentPanel.TabIndex = 4;
             this.attachmentPanel.Visible = false;
             // 
@@ -361,50 +551,26 @@ namespace cs499
             this.listAttachments.Name = "listAttachments";
             this.listAttachments.ShowLines = false;
             this.listAttachments.ShowRootLines = false;
-            this.listAttachments.Size = new System.Drawing.Size(192, 160);
+            this.listAttachments.Size = new System.Drawing.Size(188, 317);
             this.listAttachments.TabIndex = 10;
             this.listAttachments.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.listAttachments_AfterSelect);
             // 
-            // labelAttachments
+            // lblAttachments
             // 
-            this.labelAttachments.Location = new System.Drawing.Point(12, 8);
-            this.labelAttachments.Name = "labelAttachments";
-            this.labelAttachments.Size = new System.Drawing.Size(136, 16);
-            this.labelAttachments.TabIndex = 3;
-            this.labelAttachments.Text = "Attachments";
+            this.lblAttachments.Location = new System.Drawing.Point(12, 8);
+            this.lblAttachments.Name = "lblAttachments";
+            this.lblAttachments.Size = new System.Drawing.Size(136, 16);
+            this.lblAttachments.TabIndex = 3;
+            this.lblAttachments.Text = "Attachments";
             // 
             // saveFile
             // 
             this.saveFile.Title = "Save Attachment";
             // 
-            // totalMessagesTextBox
-            // 
-            this.totalMessagesTextBox.Location = new System.Drawing.Point(8, 37);
-            this.totalMessagesTextBox.Name = "totalMessagesTextBox";
-            this.totalMessagesTextBox.Size = new System.Drawing.Size(44, 20);
-            this.totalMessagesTextBox.TabIndex = 10;
-            // 
-            // labelTotalMessages
-            // 
-            this.labelTotalMessages.Location = new System.Drawing.Point(5, 11);
-            this.labelTotalMessages.Name = "labelTotalMessages";
-            this.labelTotalMessages.Size = new System.Drawing.Size(100, 23);
-            this.labelTotalMessages.TabIndex = 11;
-            this.labelTotalMessages.Text = "Total Messages";
-            // 
-            // progressBar
-            // 
-            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar.Location = new System.Drawing.Point(7, 172);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(360, 18);
-            this.progressBar.TabIndex = 11;
-            // 
             // TestForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(865, 444);
+            this.ClientSize = new System.Drawing.Size(903, 720);
             this.Controls.Add(this.panelMiddle);
             this.Controls.Add(this.panelProperties);
             this.Controls.Add(this.panelTop);
@@ -416,6 +582,7 @@ namespace cs499
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.panelProperties.ResumeLayout(false);
+            this.panelProperties.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridHeaders)).EndInit();
             this.panelMiddle.ResumeLayout(false);
             this.panelMessageBody.ResumeLayout(false);
@@ -424,14 +591,14 @@ namespace cs499
             this.attachmentPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
-		}
-		#endregion
+        }
+        #endregion
 
-		[STAThread]
-		private static void Main()
-		{
-			Application.Run(new TestForm());
-		}
+        [STAThread]
+        private static void Main()
+        {
+            Application.Run(new TestForm());
+        }
 
         private void ReceiveMails()
         {
@@ -445,8 +612,9 @@ namespace cs499
                 if (pop3Client.Connected)
                     pop3Client.Disconnect();
                 pop3Client.Connect(popServerTextBox.Text, int.Parse(portTextBox.Text), useSslCheckBox.Checked);
-                pop3Client.Authenticate(loginTextBox.Text, passwordTextBox.Text);
+                pop3Client.Authenticate(loginTextBox.Text, passwordTextBox.Text, AuthenticationMethod.UsernameAndPassword);
                 int count = pop3Client.GetMessageCount();
+                totalMessagesTextBox.Text = count.ToString();
                 messageTextBox.Text = "";
                 messages.Clear();
                 listMessages.Nodes.Clear();
@@ -485,7 +653,7 @@ namespace cs499
 
                 MessageBox.Show(this, "Mail received! \n Succesfully: " + s + "\nFailed: " + f, "Messages Retrieved.");
 
-                if(f > 0)
+                if (f > 0)
                 {
                     MessageBox.Show("Some messages were not parsed correctly");
                 }
@@ -502,24 +670,25 @@ namespace cs499
             {
                 MessageBox.Show(this, "The mailbox is locked and seems to be in use.");
             }
-            catch(LoginDelayException)
+            catch (LoginDelayException)
             {
                 MessageBox.Show(this, "You tried to log in too quickly between two logins.");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show(this, "Error ocurred retrieveing mail " + e.Message);
             }
             finally
             {
-
+                connectButton.Enabled = true;
+                progressBar.Value = 100;
             }
 
         }
-		private void ConnectAndRetrieveButtonClick(object sender, EventArgs e)
-		{
-			ReceiveMails();
-		}
+        private void ConnectAndRetrieveButtonClick(object sender, EventArgs e)
+        {
+            ReceiveMails();
+        }
 
         private void ListMessagesMessageSelected(object sender, TreeViewEventArgs e)
         {
@@ -531,8 +700,12 @@ namespace cs499
                 MessagePart selectedMessagePart = (MessagePart)listMessages.SelectedNode.Tag;
                 if (selectedMessagePart.IsText)
                 {
-                    
+
                     messageTextBox.Text = selectedMessagePart.GetBodyAsText();
+                }
+                else
+                {
+                    messageTextBox.Text = "This part of the email is not text";
                 }
             }
             else
@@ -543,10 +716,9 @@ namespace cs499
                     messageTextBox.Text = plainTextPart.GetBodyAsText();
                 }
 
-
                 listAttachments.Nodes.Clear();
 
-                List<MessagePart> attachments = message.FindAllAttachments();     
+                List<MessagePart> attachments = message.FindAllAttachments();
 
                 foreach (MessagePart attachment in attachments)
                 {
@@ -560,8 +732,6 @@ namespace cs499
                 table.Columns.Add("Value");
 
                 DataRowCollection rows = table.Rows;
-
-           
 
                 foreach (RfcMailAddress cc in message.Headers.Cc) rows.Add(new object[] { "Cc", cc });
                 foreach (RfcMailAddress bcc in message.Headers.Bcc) rows.Add(new object[] { "Bcc", bcc });
@@ -577,30 +747,94 @@ namespace cs499
             }
         }
 
-		private static int GetMessageNumberFromSelectedNode(TreeNode node)
-		{
-			if (node == null)
-				throw new ArgumentNullException("node");
+        private void Tasking_Click(object sender, EventArgs e)
+        {
+            SqlConnection connection;
+             
+            int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
+            Message message = messages[messageNumber];
+            MessagePart plainTextPart = message.FindFirstPlainTextVersion();          
 
-			if(node.Tag is int)
-			{
-				return (int) node.Tag;
-			}
+            String connetionString = GetConnectionString();           
+            connection = new SqlConnection(connetionString);
 
-			return GetMessageNumberFromSelectedNode(node.Parent);
-		}
-		private void MenuViewSourceClick(object sender, EventArgs e)
-		{
-			
-			if (listMessages.SelectedNode != null)
-			{
-				int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
-				Message m = messages[messageNumber];
+            int maxId = 0;
 
-				ShowSourceForm sourceForm = new ShowSourceForm(Encoding.ASCII.GetString(m.RawMessage));
-				sourceForm.ShowDialog();
-			}
-		}
+            //reader
+            try
+            {
+                //open connection
+                connection.Open();
+
+
+                    //command1
+                    String sqlGetMaxId = "select MAX(Id) from Emails";
+                    SqlCommand command1 = new SqlCommand(sqlGetMaxId, connection);
+                    using (SqlDataReader rdr = command1.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            if (!rdr.IsDBNull(0))
+                                maxId = rdr.GetInt32(0);
+                        }
+                    }
+                    command1.Dispose();
+
+                    //command2
+                    String sqlInsertEmail = "Insert into Emails(EmailSubject, Body, EmailFrom, EmailReplyTo, EmailDate) Values('" + message.Headers.Subject.ToString() + "','" + plainTextPart.GetBodyAsText() + "','" + message.Headers.From.ToString() + "','" + message.Headers.ReplyTo.ToString() + "','" + message.Headers.Date.ToString() + "')";
+                    SqlCommand command2 = new SqlCommand(sqlInsertEmail, connection);
+                    command2.ExecuteNonQuery();
+                    command2.Dispose();
+                
+
+
+                //command3
+                List<MessagePart> attachments = message.FindAllAttachments();
+                foreach (MessagePart attachment in attachments)
+                {                 
+                    String sqlInsertAttachment = "Insert into Attachments(EmailId, AttachmentName) Values('" + (maxId + 1) + "','" + attachment.FileName + "')";
+                    SqlCommand command3 = new SqlCommand(sqlInsertAttachment, connection);
+                    command3.ExecuteNonQuery();                  
+                    command3.Dispose();               
+                }
+
+                //close connection
+                connection.Close();
+
+                if (listMessages.SelectedNode != null)
+                    listMessages.SelectedNode.BackColor = Color.Yellow;              
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }        
+
+        }
+
+        private static int GetMessageNumberFromSelectedNode(TreeNode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (node.Tag is int)
+            {
+                return (int)node.Tag;
+            }
+
+            return GetMessageNumberFromSelectedNode(node.Parent);
+        }
+        private void MenuViewSourceClick(object sender, EventArgs e)
+        {
+
+            if (listMessages.SelectedNode != null)
+            {
+                int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
+                Message m = messages[messageNumber];
+
+                ShowSourceForm sourceForm = new ShowSourceForm(Encoding.ASCII.GetString(m.RawMessage));
+                sourceForm.ShowDialog();
+            }
+        }
 
         private void loginTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -609,24 +843,6 @@ namespace cs499
 
         private void menuDeleteMessage_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void Tasking_Click(object sender, EventArgs e)
-        {
-            //int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
-            //Message message = messages[messageNumber];
-            //string text = 
-
-            //if (listMessages.SelectedNode != null)
-            //{
-
-            //    FileInfo file = new FileInfo("tasking.docx");
-
-
-            //    message.Save(file);
-
-            //}
 
         }
 
@@ -661,6 +877,109 @@ namespace cs499
             {
                 MessageBox.Show(this, "Attachment object was null!");
             }
+        }
+
+        private String GetConnectionString()
+        {
+            string connetionString = null;
+ 
+            if (loginTypeCb.Text == "Windows Authentication")
+            {
+                //Server = localhost
+                //Database = EmailClient
+                return connetionString = "Server= " + serverNameTxt.Text + "; Database= " + databaseNameTxt.Text + "; Integrated Security=SSPI;";
+            }
+            else
+            {
+                //Data Source = 
+                //Initial Catalog = EmailClient
+                //User ID = 
+                //Password = 
+               return "Data Source=" + serverNameTxt.Text + ";Initial Catalog=" + databaseNameTxt.Text + ";User ID=" + usernameTxt.Text + "; Password=" + passwordTxt.Text + "";
+            }         
+           
+        }       
+
+        private void loginTypeCb_SelectedIndexChanged(object sender,
+        System.EventArgs e)
+        {
+
+            ComboBox comboBox = (ComboBox)sender;
+            string selectedValue = (string)loginTypeCb.SelectedItem;
+            if (selectedValue == "Windows Authentication")
+            {
+                usernameTxt.Visible = false;
+                passwordTxt.Visible = false;
+                label4.Visible = false;
+                label5.Visible = false;
+            }
+            else
+            {
+                usernameTxt.Visible = true;
+                passwordTxt.Visible = true;
+                label4.Visible = true;
+                label5.Visible = true;
+            }       
+            
+        }
+
+        private void userAccountsBtn_Click(object sender, EventArgs e)
+        {
+            UserAccountsForm userAccountForms = new UserAccountsForm( GetConnectionString());
+            userAccountForms.ShowDialog();
+        }
+
+        private void menuItem1_Click(object sender, EventArgs e)
+        {
+            {
+                if (listMessages.SelectedNode != null)
+                {
+                    DialogResult drRet = MessageBox.Show(this, "Are you sure to delete the email?", "Delete email", MessageBoxButtons.YesNo);
+                    if (drRet == DialogResult.Yes)
+                    {
+                        int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
+                        pop3Client.DeleteMessage(messageNumber);
+
+                        listMessages.Nodes[messageNumber].Remove();
+
+                        drRet = MessageBox.Show(this, "Do you want to receive email again (this will commit your changes)?", "Receive email", MessageBoxButtons.YesNo);
+                        if (drRet == DialogResult.Yes)
+                            ReceiveMails();
+                    }
+                }
+            }
+        }
+
+        private void menuItem2_Click(object sender, EventArgs e)
+        {
+            using (StreamWriter sw = new StreamWriter("C://Users/Laptop/Desktop/out.txt"))
+            {
+
+                Message message = messages[GetMessageNumberFromSelectedNode(listMessages.SelectedNode)];
+
+                foreach (RfcMailAddress cc in message.Headers.Cc) sw.WriteLine("Cc: " + cc.ToString());
+                foreach (RfcMailAddress bcc in message.Headers.Bcc) sw.WriteLine("Bcc: " + bcc.ToString());
+                foreach (RfcMailAddress to in message.Headers.To) sw.WriteLine("To: " + to.ToString());
+                sw.WriteLine("From: " + message.Headers.From.ToString());
+                sw.WriteLine("Reply-To: " + message.Headers.ReplyTo.ToString());
+                sw.WriteLine("Date: " + message.Headers.Date.ToString());
+                sw.WriteLine("Subject: " + message.Headers.Subject.ToString());
+                //sw.WriteLine("Sender" + message.Headers.Sender.ToString());
+                //sw.WriteLine( "Content-Type" + message.Headers.ContentType.ToString());
+                //sw.WriteLine( "Content-Disposition"+ message.Headers.ContentDisposition.ToString());
+                sw.WriteLine("Message-Id" + message.Headers.MessageId.ToString());
+
+                sw.WriteLine("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
+                sw.WriteLine("-------------------------------------------------------------------BODY---------------------------------------------------------------------------------------");
+                sw.WriteLine("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
+
+
+                int messageNumber = GetMessageNumberFromSelectedNode(listMessages.SelectedNode);
+                MessagePart plainTextPart = message.FindFirstPlainTextVersion();
+                sw.WriteLine(plainTextPart.GetBodyAsText());
+
+
+            }
+        }
     }
 }
-    }
