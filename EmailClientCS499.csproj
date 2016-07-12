@@ -115,6 +115,12 @@
     <Compile Include="TestForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UserAccountsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserAccountsForm.Designer.cs">
+      <DependentUpon>UserAccountsForm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -140,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TestForm.resx">
       <DependentUpon>TestForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserAccountsForm.resx">
+      <DependentUpon>UserAccountsForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
